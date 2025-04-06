@@ -1,6 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:savings_app/utils/popup.dart';
-import 'package:savings_app/view/home/dashboard.dart';
+import 'package:http/http.dart' as http;
 
 class LoginViewModel extends ChangeNotifier {
   final emailController = TextEditingController();
@@ -29,13 +31,29 @@ class LoginViewModel extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    await Future.delayed(const Duration(seconds: 2));
+    final response;
+    try{
+       response = await http.get(Uri.parse('http://192.168.0.216:8080/api/v1/health')).timeout(Duration(seconds: 3));
+    } catch(e) {
+      _isLoading = false;
+      notifyListeners();
+      PopupUtils.showError(context, 'Unable to connect to server!');
+      return;
+    }
+
+    final data = jsonDecode(response.body);
+    bool db = data['data']['status']['database'];
+
+    if (!db) {
+      PopupUtils.showError(context, 'Unable to connect to the database!');
+      return;
+    }
 
     _isLoading = false;
     notifyListeners();
 
     PopupUtils.showSuccess(context, "Logged in successfully.");
-    Navigator.pushReplacementNamed(context, '/home');
+    Navigator.pushNamedAndRemoveUntil(context, '/home', (Route<dynamic> route) => false);
   }
 
   @override
