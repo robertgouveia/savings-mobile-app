@@ -1,5 +1,6 @@
 
 import 'package:flutter/material.dart';
+import 'package:savings_app/utils/popup.dart';
 
 class RegisterViewModel extends ChangeNotifier {
   final firstNameController = TextEditingController();
@@ -27,12 +28,12 @@ class RegisterViewModel extends ChangeNotifier {
 
   Future<void> submitRegister(BuildContext context) async {
     if (firstNameController.text.isEmpty || emailController.text.isEmpty || passwordController.text.isEmpty || passwordController.text.isEmpty) {
-      _showError(context, 'Please fill in missing fields');
+      PopupUtils.showError(context, 'Please fill in missing fields');
       return;
     }
 
     if (passwordController.text != confirmPasswordController.text) {
-      _showError(context, 'Password confirmation does not match');
+      PopupUtils.showError(context, 'Password confirmation does not match');
       return;
     }
 
@@ -43,15 +44,7 @@ class RegisterViewModel extends ChangeNotifier {
     _isLoading = false;
     notifyListeners();
 
-    _showSuccess(context, 'Registered Successfully');
-  }
-
-  void _showError(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message), backgroundColor: Colors.red));
-  }
-
-  void _showSuccess(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message), backgroundColor: Colors.green));
+    PopupUtils.showSuccess(context, 'Registered Successfully');
   }
 
   @override

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:savings_app/utils/popup.dart';
 import 'package:savings_app/view/home/dashboard.dart';
 
 class LoginViewModel extends ChangeNotifier {
@@ -21,7 +22,7 @@ class LoginViewModel extends ChangeNotifier {
     final password = passwordController.text;
 
     if (email.isEmpty || password.isEmpty) {
-      _showError(context, "Please fill in empty fields.");
+      PopupUtils.showError(context, "Please fill in empty fields.");
       return;
     }
 
@@ -33,16 +34,8 @@ class LoginViewModel extends ChangeNotifier {
     _isLoading = false;
     notifyListeners();
 
-    _showSuccess(context, "Logged in successfully.");
-    Navigator.pushReplacement(context, MaterialPageRoute(builder: (context) => DashboardPage()));
-  }
-
-  void _showError(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message), backgroundColor: Colors.red));
-  }
-
-  void _showSuccess(BuildContext context, String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message), backgroundColor: Colors.green));
+    PopupUtils.showSuccess(context, "Logged in successfully.");
+    Navigator.pushReplacementNamed(context, '/home');
   }
 
   @override

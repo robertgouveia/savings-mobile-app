@@ -105,6 +105,7 @@ class RegisterPage extends StatelessWidget {
                           : const Text('Register')
                   ),
                 ),
+
                 Padding(padding: EdgeInsets.symmetric(vertical: 12, horizontal: 0),
                 child: GestureDetector(
                   child: Text('Already a User?'),

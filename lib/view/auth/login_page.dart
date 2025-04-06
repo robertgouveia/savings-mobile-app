@@ -78,11 +78,11 @@ class LoginPage extends StatelessWidget {
                       )
                           : const Text('Login'),
                     ),
-                ),
+                  ),
                   Padding(padding: EdgeInsets.symmetric(vertical: 12, horizontal: 0),
                   child: GestureDetector(
                     child: Text('Get Started here!'),
-                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (context) => RegisterPage())),
+                    onTap: () => Navigator.pushNamed(context, '/register'),
                   ),)
                 ],
               ),
