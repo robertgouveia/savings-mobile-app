@@ -1,4 +1,7 @@
+import 'dart:convert';
 
+import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:savings_app/utils/popup.dart';
 
@@ -27,7 +30,8 @@ class RegisterViewModel extends ChangeNotifier {
   }
 
   Future<void> submitRegister(BuildContext context) async {
-    if (firstNameController.text.isEmpty || emailController.text.isEmpty || passwordController.text.isEmpty || passwordController.text.isEmpty) {
+    if (firstNameController.text.isEmpty || emailController.text.isEmpty ||
+        passwordController.text.isEmpty || passwordController.text.isEmpty) {
       PopupUtils.showError(context, 'Please fill in missing fields');
       return;
     }
@@ -40,11 +44,44 @@ class RegisterViewModel extends ChangeNotifier {
     _isLoading = true;
     notifyListeners();
 
-    await Future.delayed(const Duration(seconds: 2));
+    final body = {
+      "email": emailController.text.toString(),
+      "password": passwordController.text.toString()
+    };
+
+    final response;
+    try {
+      response = await http.post(
+          Uri.parse('${dotenv.get('API_URL')}/auth/register'),
+          body: jsonEncode(body), headers: {
+        'Content-Type': 'application/json'
+      }).timeout(Duration(seconds: 3));
+    } catch (e) {
+      _isLoading = false;
+      notifyListeners();
+      PopupUtils.showError(context, 'Unable to register');
+      return;
+    }
+
+    if (response.statusCode != 200) {
+      _isLoading = false;
+      notifyListeners();
+      print(jsonDecode(response.body));
+      PopupUtils.showError(context, 'Unable to register');
+      return;
+    }
+
     _isLoading = false;
     notifyListeners();
 
     PopupUtils.showSuccess(context, 'Registered Successfully');
+
+    Navigator.pushNamedAndRemoveUntil(
+        context,
+        '/verify',
+        (Route<dynamic> route) => false,
+        arguments: {"email": emailController.text.toString()}
+    );
   }
 
   @override

@@ -34,7 +34,7 @@ class LoginViewModel extends ChangeNotifier {
 
     final response;
     try{
-       response = await http.get(Uri.parse(dotenv.get('API_URL'))).timeout(Duration(seconds: 3));
+       response = await http.get(Uri.parse('${dotenv.get('API_URL')}/health')).timeout(Duration(seconds: 3));
     } catch(e) {
       _isLoading = false;
       notifyListeners();

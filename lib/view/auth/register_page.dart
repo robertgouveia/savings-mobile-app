@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:savings_app/utils/popup.dart';
 import 'package:savings_app/viewmodel/auth/register_viewmodel.dart';
 
 class RegisterPage extends StatelessWidget {
@@ -95,7 +96,7 @@ class RegisterPage extends StatelessWidget {
                   width: double.infinity,
                   height: 48,
                   child: FilledButton(
-                      onPressed: () => vm.submitRegister,
+                      onPressed: () => vm.submitRegister(context),
                       child: vm.isLoading ?
                           const SizedBox(
                             width: 24,

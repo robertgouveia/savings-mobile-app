@@ -3,9 +3,11 @@ import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:savings_app/view/auth/login_page.dart';
 import 'package:savings_app/view/auth/register_page.dart';
+import 'package:savings_app/view/auth/verify_page.dart';
 import 'package:savings_app/view/home/dashboard.dart';
 import 'package:savings_app/viewmodel/auth/login_viewmodel.dart';
 import 'package:savings_app/viewmodel/auth/register_viewmodel.dart';
+import 'package:savings_app/viewmodel/auth/verification_viewmodel.dart';
 
 void main() async {
   await dotenv.load();
@@ -21,7 +23,8 @@ class MyApp extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => RegisterViewModel(),),
-        ChangeNotifierProvider(create: (_) => LoginViewModel())
+        ChangeNotifierProvider(create: (_) => LoginViewModel()),
+        ChangeNotifierProvider(create: (_) => VerificationViewModel())
       ],
       child: MaterialApp(
         debugShowCheckedModeBanner: false,
@@ -32,7 +35,8 @@ class MyApp extends StatelessWidget {
         routes: {
           '/register': (context) => RegisterPage(),
           '/login': (context) => LoginPage(),
-          '/home': (context) => DashboardPage()
+          '/home': (context) => DashboardPage(),
+          '/verify': (context) => VerificationPage(email: "")
         },
       ),
     );
