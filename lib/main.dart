@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
 import 'package:savings_app/view/auth/login_page.dart';
 import 'package:savings_app/view/auth/register_page.dart';
@@ -6,7 +7,8 @@ import 'package:savings_app/view/home/dashboard.dart';
 import 'package:savings_app/viewmodel/auth/login_viewmodel.dart';
 import 'package:savings_app/viewmodel/auth/register_viewmodel.dart';
 
-void main() {
+void main() async {
+  await dotenv.load();
   runApp(const MyApp());
 }
 

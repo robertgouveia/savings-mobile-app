@@ -1,6 +1,7 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:savings_app/utils/popup.dart';
 import 'package:http/http.dart' as http;
 
@@ -33,7 +34,7 @@ class LoginViewModel extends ChangeNotifier {
 
     final response;
     try{
-       response = await http.get(Uri.parse('http://192.168.0.216:8080/api/v1/health')).timeout(Duration(seconds: 3));
+       response = await http.get(Uri.parse(dotenv.get('API_URL'))).timeout(Duration(seconds: 3));
     } catch(e) {
       _isLoading = false;
       notifyListeners();
