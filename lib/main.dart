@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:provider/provider.dart';
+import 'package:savings_app/utils/TokenStorage.dart';
 import 'package:savings_app/view/auth/login_page.dart';
 import 'package:savings_app/view/auth/register_page.dart';
 import 'package:savings_app/view/auth/verify_page.dart';
@@ -19,6 +20,7 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final tokenStorage = TokenStorage();
 
     return MultiProvider(
       providers: [
@@ -30,8 +32,13 @@ class MyApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         title: 'Login UI',
         theme: ThemeData(useMaterial3: true, colorSchemeSeed: Color.fromRGBO(218, 119, 86, 1)),
-        home: const LoginPage(),
-        initialRoute: '/login',
+        home: FutureBuilder(future: tokenStorage.isLoggedIn(), builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator(),);
+          }
+
+          return snapshot.data == true ? const DashboardPage() : const LoginPage();
+        }),
         routes: {
           '/register': (context) => RegisterPage(),
           '/login': (context) => LoginPage(),

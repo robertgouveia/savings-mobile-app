@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:savings_app/utils/TokenStorage.dart';
 import 'package:savings_app/utils/popup.dart';
 import 'package:http/http.dart' as http;
 
@@ -34,7 +35,15 @@ class LoginViewModel extends ChangeNotifier {
 
     final response;
     try{
-       response = await http.get(Uri.parse('${dotenv.get('API_URL')}/health')).timeout(Duration(seconds: 3));
+       response = await http.post(Uri.parse('${dotenv.get('API_URL')}/auth/login'),
+        headers: {
+         'Content-Type': 'application/json'
+        },
+        body: jsonEncode({
+          'email': email,
+          'password': password
+        })
+       ).timeout(Duration(seconds: 3));
     } catch(e) {
       _isLoading = false;
       notifyListeners();
@@ -43,10 +52,23 @@ class LoginViewModel extends ChangeNotifier {
     }
 
     final data = jsonDecode(response.body);
-    bool db = data['data']['status']['database'];
+    final tokenStorage = TokenStorage();
 
-    if (!db) {
-      PopupUtils.showError(context, 'Unable to connect to the database!');
+    bool success = false;
+    try {
+      success = await tokenStorage.saveToken(data['data']['token']);
+    } catch(e) {
+      print(e);
+      _isLoading = false;
+      notifyListeners();
+      PopupUtils.showError(context, 'Unable to register token');
+      return;
+    }
+
+    if (!success) {
+      _isLoading = false;
+      notifyListeners();
+      PopupUtils.showError(context, 'Unable to register token');
       return;
     }
 

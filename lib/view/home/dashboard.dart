@@ -2,22 +2,48 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:savings_app/components/quick_action_button.dart';
 import 'package:savings_app/components/transaction_item.dart';
+import 'package:savings_app/utils/TokenStorage.dart';
 
-class DashboardPage extends StatelessWidget {
+class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  State<DashboardPage> createState() => _DashboardPageState();
+}
 
+class _DashboardPageState extends State<DashboardPage> {
+  String email = 'loading...'; // State variable for email
+
+  @override
+  void initState() {
+    super.initState();
+    fetchEmail(); // Start fetching email on widget initialization
+  }
+
+  // Asynchronous function to fetch email and update the state
+  Future<void> fetchEmail() async {
+    final tokenStorage = TokenStorage();
+    final fetchedEmail = await tokenStorage.getEmail();
+    setState(() {
+      if (fetchedEmail == null) {
+        email = 'Not found';
+        return;
+      };
+      email = fetchedEmail.split('@')[0]; // Update state and rebuild
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
         systemOverlayStyle: SystemUiOverlayStyle.dark,
         backgroundColor: Colors.transparent,
         elevation: 0,
-        title: const Text(
-          'Home',
-          style: TextStyle(
+        title: Text(
+          'Welcome $email',
+          style: const TextStyle(
             color: Color(0xFF2D3748),
             fontWeight: FontWeight.bold,
           ),
@@ -121,8 +147,8 @@ class DashboardPage extends StatelessWidget {
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
+                  children: const [
+                    Text(
                       'My Expenses',
                       style: TextStyle(
                         fontSize: 18,
@@ -130,7 +156,7 @@ class DashboardPage extends StatelessWidget {
                         color: Color(0xFF2D3748),
                       ),
                     ),
-                    const Text(
+                    Text(
                       '£2025.99',
                       style: TextStyle(
                         fontSize: 12,
@@ -138,7 +164,7 @@ class DashboardPage extends StatelessWidget {
                         color: Colors.grey,
                       ),
                     )
-                  ]
+                  ],
                 ),
                 TextButton(
                   onPressed: () {},
@@ -149,7 +175,7 @@ class DashboardPage extends StatelessWidget {
 
             const SizedBox(height: 16),
 
-            TransactionItem(
+            const TransactionItem(
               date: 'monthly',
               isDeposit: false,
               title: 'Rent',
@@ -157,8 +183,8 @@ class DashboardPage extends StatelessWidget {
               iconData: Icons.house,
             ),
 
-            SizedBox(width: 16),
-            TransactionItem(
+            const SizedBox(height: 16),
+            const TransactionItem(
               date: 'monthly',
               isDeposit: false,
               title: 'Food',
@@ -166,8 +192,8 @@ class DashboardPage extends StatelessWidget {
               iconData: Icons.set_meal,
             ),
 
-            SizedBox(width: 16),
-            TransactionItem(
+            const SizedBox(height: 16),
+            const TransactionItem(
               date: 'monthly',
               isDeposit: false,
               title: 'Car',
@@ -175,8 +201,8 @@ class DashboardPage extends StatelessWidget {
               iconData: Icons.car_rental,
             ),
 
-            SizedBox(width: 16),
-            TransactionItem(
+            const SizedBox(height: 16),
+            const TransactionItem(
               date: 'monthly',
               isDeposit: false,
               title: 'Netflix',
@@ -185,6 +211,7 @@ class DashboardPage extends StatelessWidget {
             ),
 
             const SizedBox(height: 24),
+
             // Quick Actions
             const Text(
               'Quick Actions',
