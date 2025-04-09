@@ -6,6 +6,7 @@ import 'package:savings_app/view/auth/login_page.dart';
 import 'package:savings_app/view/auth/register_page.dart';
 import 'package:savings_app/view/auth/verify_page.dart';
 import 'package:savings_app/view/home/dashboard.dart';
+import 'package:savings_app/view/settings/settings.dart';
 import 'package:savings_app/viewmodel/auth/login_viewmodel.dart';
 import 'package:savings_app/viewmodel/auth/register_viewmodel.dart';
 import 'package:savings_app/viewmodel/auth/verification_viewmodel.dart';
@@ -42,6 +43,7 @@ class MyApp extends StatelessWidget {
         routes: {
           '/register': (context) => RegisterPage(),
           '/login': (context) => LoginPage(),
+          '/settings': (context) => SettingsPage(),
           '/home': (context) => DashboardPage(),
           '/verify': (context) => VerificationPage(email: "")
         },

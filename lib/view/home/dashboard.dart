@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:savings_app/components/quick_action_button.dart';
 import 'package:savings_app/components/transaction_item.dart';
 import 'package:savings_app/utils/TokenStorage.dart';
+import 'package:savings_app/utils/claude.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -17,10 +18,15 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   void initState() {
     super.initState();
-    fetchEmail(); // Start fetching email on widget initialization
+    fetchEmail();
+    //contactClaude();
   }
 
-  // Asynchronous function to fetch email and update the state
+  Future<void> contactClaude() async {
+    final claude = Claude();
+    await claude.contact();
+  }
+
   Future<void> fetchEmail() async {
     final tokenStorage = TokenStorage();
     final fetchedEmail = await tokenStorage.getEmail();
@@ -29,7 +35,7 @@ class _DashboardPageState extends State<DashboardPage> {
         email = 'Not found';
         return;
       };
-      email = fetchedEmail.split('@')[0]; // Update state and rebuild
+      email = fetchedEmail.split('@')[0];
     });
   }
 
@@ -51,7 +57,7 @@ class _DashboardPageState extends State<DashboardPage> {
         actions: [
           IconButton(
             icon: const Icon(Icons.settings, color: Color(0xFF2D3748)),
-            onPressed: () {},
+            onPressed: () => Navigator.pushNamed(context, '/settings'),
           ),
           const SizedBox(width: 8),
         ],
