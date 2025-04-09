@@ -5,6 +5,97 @@ import 'package:savings_app/components/transaction_item.dart';
 import 'package:savings_app/utils/TokenStorage.dart';
 import 'package:savings_app/utils/claude.dart';
 
+// will soon be sent over API.
+final inputData = {
+  "year": 2025,
+  "income": [
+    {
+      "type": "salary",
+      "amount": 24000,
+      "frequency": "annual",
+      "after_tax": false
+    }
+  ],
+  "expenses": [
+    {
+      "type": "rent",
+      "amount": 765 / 2,
+      "frequency": "monthly",
+      "category": "housing"
+    },
+    {
+      "type": "groceries",
+      "amount": 250,
+      "frequency": "monthly",
+      "category": "food"
+    },
+    {
+      "type": "utilities",
+      "amount": 100 / 2,
+      "frequency": "monthly",
+      "category": "housing"
+    },
+    {
+      "type": "subscriptions",
+      "amount": 16.99 / 2,
+      "frequency": "monthly",
+      "category": "entertainment"
+    },
+    {
+      "type": "dining_out",
+      "amount": 100,
+      "frequency": "monthly",
+      "category": "food"
+    }
+  ],
+  "balance_history": [
+    {
+      "month": "january",
+      "amount": 2000,
+      "savings_contribution": 0
+    },
+    {
+      "month": "february",
+      "amount": 2400,
+      "savings_contribution": 400
+    },
+    {
+      "month": "march",
+      "amount": 2800,
+      "savings_contribution": 400
+    },
+    {
+      "month": "april",
+      "amount": 3300,
+      "savings_contribution": 500
+    }
+  ],
+  "financial_goals": [
+    {
+      "name": "car",
+      "target_amount": 5000,
+      "current_amount": 0,
+      "priority": "high"
+    }
+  ],
+  "debts": [
+    {
+      "type": "laptop",
+      "total_amount": 1100,
+      "remaining_amount": 500,
+      "interest_rate": 4.5,
+      "minimum_payment": 50
+    },
+    {
+      "type": "phone",
+      "total_amount": 1100,
+      "remaining_amount": 900,
+      "interest_rate": 0,
+      "minimum_payment": 60
+    }
+  ]
+};
+
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
 
@@ -13,18 +104,18 @@ class DashboardPage extends StatefulWidget {
 }
 
 class _DashboardPageState extends State<DashboardPage> {
-  String email = 'loading...'; // State variable for email
+  String email = 'loading...';
 
   @override
   void initState() {
     super.initState();
     fetchEmail();
-    //contactClaude();
+    contactClaude();
   }
 
   Future<void> contactClaude() async {
     final claude = Claude();
-    await claude.contact();
+    await claude.contact(inputData);
   }
 
   Future<void> fetchEmail() async {
