@@ -1,17 +1,48 @@
+import 'dart:convert';
+import 'dart:ffi';
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:savings_app/components/quick_action_button.dart';
 import 'package:savings_app/components/transaction_item.dart';
 import 'package:savings_app/utils/TokenStorage.dart';
-import 'package:savings_app/utils/claude.dart';
+
+import '../../utils/claude.dart';
+
+final response = {
+  "id": "msg_01XZ5ZJccLYZEy5t2cPfgZ36",
+  "type": "message",
+  "role": "assistant",
+  "model": "claude-3-7-sonnet-20250219",
+  "content": [
+    {
+      "type": "text",
+      "text": """{
+    "optimization_message": "Based on your current savings rate of about \$433/month, I recommend slightly increasing your monthly savings to \$450. Consider reducing dining out expenses by \$20/month which could accelerate your car savings goal by approximately one month. Also, prioritize paying off your laptop debt first since it carries 4.5% interest.",
+    "forecast_eoy_balance": 7058,
+    "expected_goal_dates": {
+      "car": "December 2025",
+      "debt_free": "October 2025"
+    }
+  }"""
+    }
+  ],
+  "stop_reason": "end_turn",
+  "stop_sequence": null,
+  "usage": {
+    "input_tokens": 403,
+    "cache_creation_input_tokens": 0,
+    "cache_read_input_tokens": 0,
+    "output_tokens": 137
+  }
+};
 
 // will soon be sent over API.
 final inputData = {
-  "year": 2025,
+  "year": 2025.0,
   "income": [
     {
       "type": "salary",
-      "amount": 24000,
+      "amount": 24000.0,
       "frequency": "annual",
       "after_tax": false
     }
@@ -19,31 +50,31 @@ final inputData = {
   "expenses": [
     {
       "type": "rent",
-      "amount": 765 / 2,
+      "amount": 365.0,
       "frequency": "monthly",
       "category": "housing"
     },
     {
       "type": "groceries",
-      "amount": 250,
+      "amount": 250.0,
       "frequency": "monthly",
       "category": "food"
     },
     {
       "type": "utilities",
-      "amount": 100 / 2,
+      "amount": 50.0,
       "frequency": "monthly",
       "category": "housing"
     },
     {
       "type": "subscriptions",
-      "amount": 16.99 / 2,
+      "amount": 8.0,
       "frequency": "monthly",
       "category": "entertainment"
     },
     {
       "type": "dining_out",
-      "amount": 100,
+      "amount": 100.0,
       "frequency": "monthly",
       "category": "food"
     }
@@ -51,47 +82,47 @@ final inputData = {
   "balance_history": [
     {
       "month": "january",
-      "amount": 2000,
-      "savings_contribution": 0
+      "amount": 2000.0,
+      "savings_contribution": 0.0
     },
     {
       "month": "february",
-      "amount": 2400,
-      "savings_contribution": 400
+      "amount": 2400.0,
+      "savings_contribution": 400.0
     },
     {
       "month": "march",
-      "amount": 2800,
-      "savings_contribution": 400
+      "amount": 2800.0,
+      "savings_contribution": 400.0
     },
     {
       "month": "april",
-      "amount": 3300,
-      "savings_contribution": 500
+      "amount": 3300.0,
+      "savings_contribution": 500.0
     }
   ],
   "financial_goals": [
     {
       "name": "car",
-      "target_amount": 5000,
-      "current_amount": 0,
+      "target_amount": 5000.0,
+      "current_amount": 0.0,
       "priority": "high"
     }
   ],
   "debts": [
     {
       "type": "laptop",
-      "total_amount": 1100,
-      "remaining_amount": 500,
+      "total_amount": 1100.0,
+      "remaining_amount": 500.0,
       "interest_rate": 4.5,
-      "minimum_payment": 50
+      "minimum_payment": 50.0
     },
     {
       "type": "phone",
-      "total_amount": 1100,
-      "remaining_amount": 900,
-      "interest_rate": 0,
-      "minimum_payment": 60
+      "total_amount": 1100.0,
+      "remaining_amount": 900.0,
+      "interest_rate": 0.0,
+      "minimum_payment": 60.0
     }
   ]
 };
@@ -105,12 +136,21 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   String email = 'loading...';
+  double totalExpenses = 0.0;
 
   @override
   void initState() {
     super.initState();
     fetchEmail();
-    contactClaude();
+    calculateTotalExpenses();
+    //contactClaude();
+  }
+
+  void calculateTotalExpenses() {
+    setState(() {
+      totalExpenses = (inputData['expenses'] as List<dynamic>?)
+          ?.fold(0.0, (sum, expense) => (sum ?? 0.0) + (expense['amount'] ?? 0.0)) ?? 0.0;
+    });
   }
 
   Future<void> contactClaude() async {
@@ -132,6 +172,9 @@ class _DashboardPageState extends State<DashboardPage> {
 
   @override
   Widget build(BuildContext context) {
+    final text = (response as Map<String, dynamic>)['content'][0]['text'] as String;
+    final parsedResponse = jsonDecode(text) as Map<String, dynamic>;
+
     return Scaffold(
       backgroundColor: const Color(0xFFF8F9FA),
       appBar: AppBar(
@@ -178,9 +221,14 @@ class _DashboardPageState extends State<DashboardPage> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    '£12,580.50',
-                    style: TextStyle(
+                  Text(
+                    '£${(inputData['balance_history'] as List<Map<
+                        String,
+                        dynamic>>).last['amount']
+                        .toStringAsFixed(2)
+                        .replaceAllMapped(
+                        RegExp(r'\B(?=(\d{3})+(?!\d))'), (match) => ',')}',
+                    style: const TextStyle(
                       color: Colors.white,
                       fontSize: 32,
                       fontWeight: FontWeight.bold,
@@ -203,9 +251,9 @@ class _DashboardPageState extends State<DashboardPage> {
                           const SizedBox(height: 4),
                           Row(
                             children: [
-                              const Text(
-                                '£21,293',
-                                style: TextStyle(
+                              Text(
+                                '£${parsedResponse['forecast_eoy_balance'].toString().replaceAllMapped(RegExp(r'\B(?=(\d{3})+(?!\d))'), (match) => ',')}',
+                                style: const TextStyle(
                                   color: Colors.white,
                                   fontWeight: FontWeight.bold,
                                 ),
@@ -217,8 +265,8 @@ class _DashboardPageState extends State<DashboardPage> {
                                   color: Colors.white.withOpacity(0.2),
                                   borderRadius: BorderRadius.circular(12),
                                 ),
-                                child: const Text(
-                                  '30%',
+                                child: Text(
+                                  '${(((inputData['balance_history'] as List<Map<String, dynamic>>).last['amount'] / parsedResponse['forecast_eoy_balance']) * 100).toStringAsFixed(2)}%',
                                   style: TextStyle(
                                     color: Colors.white,
                                     fontSize: 12,
@@ -244,7 +292,7 @@ class _DashboardPageState extends State<DashboardPage> {
               children: [
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
-                  children: const [
+                  children: [
                     Text(
                       'My Expenses',
                       style: TextStyle(
@@ -254,8 +302,8 @@ class _DashboardPageState extends State<DashboardPage> {
                       ),
                     ),
                     Text(
-                      '£2025.99',
-                      style: TextStyle(
+                      '£$totalExpenses',
+                      style: const TextStyle(
                         fontSize: 12,
                         fontWeight: FontWeight.w300,
                         color: Colors.grey,
@@ -263,148 +311,22 @@ class _DashboardPageState extends State<DashboardPage> {
                     )
                   ],
                 ),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text('See All'),
-                ),
               ],
             ),
 
             const SizedBox(height: 16),
 
-            const TransactionItem(
-              date: 'monthly',
-              isDeposit: false,
-              title: 'Rent',
-              amount: 1200,
-              iconData: Icons.house,
-            ),
-
-            const SizedBox(height: 16),
-            const TransactionItem(
-              date: 'monthly',
-              isDeposit: false,
-              title: 'Food',
-              amount: 500,
-              iconData: Icons.set_meal,
-            ),
-
-            const SizedBox(height: 16),
-            const TransactionItem(
-              date: 'monthly',
-              isDeposit: false,
-              title: 'Car',
-              amount: 300,
-              iconData: Icons.car_rental,
-            ),
-
-            const SizedBox(height: 16),
-            const TransactionItem(
-              date: 'monthly',
-              isDeposit: false,
-              title: 'Netflix',
-              amount: 15.99,
-              iconData: Icons.movie,
-            ),
-
-            const SizedBox(height: 24),
-
-            // Quick Actions
-            const Text(
-              'Quick Actions',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-                color: Color(0xFF2D3748),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                QuickActionButton(
-                  title: 'Deposit',
-                  icon: Icons.add_circle_outline,
-                  color: Colors.green,
-                  onTap: () {},
-                ),
-                QuickActionButton(
-                  title: 'Withdraw',
-                  icon: Icons.remove_circle_outline,
-                  color: Colors.red,
-                  onTap: () {},
-                ),
-                QuickActionButton(
-                  title: 'Transfer',
-                  icon: Icons.swap_horiz,
-                  color: Colors.blue,
-                  onTap: () {},
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 24),
-
-            // Recent Transactions
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                const Text(
-                  'Recent Transactions',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.bold,
-                    color: Color(0xFF2D3748),
-                  ),
-                ),
-                TextButton(
-                  onPressed: () {},
-                  child: const Text('View All'),
-                ),
-              ],
-            ),
-
-            const SizedBox(height: 16),
-
-            const TransactionItem(
-              title: 'Weekly Deposit',
-              amount: 250,
-              isDeposit: true,
-              date: 'Today',
-              iconData: Icons.account_balance,
-            ),
-
-            const Divider(),
-
-            const TransactionItem(
-              title: 'Bonus Savings',
-              amount: 150,
-              isDeposit: true,
-              date: 'Yesterday',
-              iconData: Icons.savings,
-            ),
-
-            const Divider(),
-
-            const TransactionItem(
-              title: 'Emergency Withdrawal',
-              amount: 80,
-              isDeposit: false,
-              date: 'Apr 3, 2025',
-              iconData: Icons.medical_services,
-            ),
-
-            const Divider(),
-
-            const TransactionItem(
-              title: 'Paycheck Deposit',
-              amount: 500,
-              isDeposit: true,
-              date: 'Apr 1, 2025',
-              iconData: Icons.account_balance_wallet,
-            ),
+            ...(inputData['expenses'] as List<Map<String, dynamic>>).map((
+                expense) {
+              return TransactionItem(
+                date: expense['frequency'],
+                isDeposit: false,
+                title: (expense['type'][0].toUpperCase() + expense['type'].substring(1)).replaceAll('_', ' '),
+                amount: expense['amount'],
+                iconData: Icons
+                    .description, // Replace with logic to map category to icon if needed
+              );
+            }),
           ],
         ),
       ),
