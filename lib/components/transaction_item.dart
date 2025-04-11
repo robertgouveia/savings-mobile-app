@@ -58,7 +58,7 @@ class TransactionItem extends StatelessWidget {
             ),
           ),
           Text(
-            '${isDeposit ? "+" : "-"}\£${amount.toStringAsFixed(2)}',
+            '${isDeposit ? "" : "-"}\£${amount.toStringAsFixed(2)}',
             style: TextStyle(
               color: isDeposit ? Colors.green : Colors.red,
               fontWeight: FontWeight.bold,
