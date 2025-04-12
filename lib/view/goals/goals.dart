@@ -63,10 +63,10 @@ class GoalsPage extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Summary card
+            // Summary card - styled like text fields in AddGoalPage
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(32),
+              padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [Colors.deepOrange, Colors.orangeAccent],
@@ -90,9 +90,17 @@ class GoalsPage extends StatelessWidget {
                     '£30,000',
                     style: TextStyle(
                       color: Colors.white,
-                      fontSize: 32,
+                      fontSize: 28,
                       fontWeight: FontWeight.bold,
                     ),
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      _buildSummaryItem('Saved', '£15,050'),
+                      _buildSummaryItem('Remaining', '£14,950'),
+                    ],
                   ),
                 ],
               ),
@@ -107,8 +115,9 @@ class GoalsPage extends StatelessWidget {
                   const Text(
                     'Active Goals',
                     style: TextStyle(
-                      fontSize: 18,
+                      fontSize: 16,
                       fontWeight: FontWeight.bold,
+                      color: Color(0xFF2D3748),
                     ),
                   ),
                   TextButton(
@@ -126,36 +135,150 @@ class GoalsPage extends StatelessWidget {
               ),
             ),
 
-            ...(goals as List<Map<String, dynamic>>).map((
-                goal) {
-              return TransactionItem(
-                date: goal['deadline'],
-                isDeposit: true,
-                title: goal['title'],
-                amount: goal['target'],
-                iconData: Icons
-                    .description, // Replace with logic to map category to icon if needed
-              );
-            }),
+            // Goals list
+            Expanded(
+              child: ListView.builder(
+                itemCount: goals.length,
+                itemBuilder: (context, index) {
+                  final goal = goals[index];
+                  final progress = (goal['saved'] as double) / (goal['target'] as double);
+
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Padding(
+                      padding: const EdgeInsets.all(16),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Row(
+                            children: [
+                              // Icon container - matching the AddGoalPage icon style
+                              Container(
+                                height: 48,
+                                width: 48,
+                                decoration: BoxDecoration(
+                                  color: Colors.orange[700],
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: Icon(
+                                  goal['icon'] as IconData,
+                                  color: Colors.white,
+                                  size: 24,
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              // Goal details
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      goal['title'] as String,
+                                      style: const TextStyle(
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                        color: Color(0xFF2D3748),
+                                      ),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      'Target: £${(goal['target'] as double).toStringAsFixed(0)}',
+                                      style: TextStyle(
+                                        color: Colors.grey[600],
+                                        fontSize: 14,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              // Deadline
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.end,
+                                children: [
+                                  Text(
+                                    goal['deadline'] as String,
+                                    style: TextStyle(
+                                      color: Colors.grey[700],
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.w500,
+                                    ),
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    '${(progress * 100).toStringAsFixed(0)}% saved',
+                                    style: TextStyle(
+                                      color: progress > 0.75 ? Colors.green : Colors.orange[700],
+                                      fontWeight: FontWeight.w500,
+                                      fontSize: 14,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 16),
+                          // Progress details
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                '£${(goal['saved'] as double).toStringAsFixed(0)} saved',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 14,
+                                ),
+                              ),
+                              Text(
+                                '£${((goal['target'] as double) - (goal['saved'] as double)).toStringAsFixed(0)} to go',
+                                style: TextStyle(
+                                  color: Colors.grey[600],
+                                  fontSize: 14,
+                                ),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: 8),
+                          // Progress bar - styled like form elements in AddGoalPage
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(4),
+                            child: LinearProgressIndicator(
+                              value: progress,
+                              backgroundColor: Colors.grey[200],
+                              valueColor: AlwaysStoppedAnimation<Color>(
+                                progress > 0.75 ? Colors.green : Colors.orange[700]!,
+                              ),
+                              minHeight: 8,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Add goal functionality
+          Navigator.pushNamed(context, '/goals/add');
         },
         backgroundColor: Colors.orange[700],
         child: const Icon(Icons.add),
       ),
       bottomNavigationBar: BottomNavigationBar(
-        selectedItemColor: const Color(0xFF4F46E5),
+        selectedItemColor: Colors.orange[700],
         unselectedItemColor: Colors.grey,
-        currentIndex: 0,
+        currentIndex: 1,  // Goals tab
         type: BottomNavigationBarType.fixed,
         onTap: (index) {
           if (index == 0) {
             Navigator.pop(context);
-            return;
           }
         },
         items: const [
@@ -189,7 +312,7 @@ class GoalsPage extends StatelessWidget {
           style: const TextStyle(
             color: Colors.white,
             fontSize: 16,
-            fontWeight: FontWeight.bold,
+            fontWeight: FontWeight.w500,
           ),
         ),
       ],

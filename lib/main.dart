@@ -5,6 +5,7 @@ import 'package:savings_app/utils/TokenStorage.dart';
 import 'package:savings_app/view/auth/login_page.dart';
 import 'package:savings_app/view/auth/register_page.dart';
 import 'package:savings_app/view/auth/verify_page.dart';
+import 'package:savings_app/view/goals/add_goal.dart';
 import 'package:savings_app/view/goals/goals.dart';
 import 'package:savings_app/view/home/dashboard.dart';
 import 'package:savings_app/view/settings/settings.dart';
@@ -47,7 +48,8 @@ class MyApp extends StatelessWidget {
           '/settings': (context) => SettingsPage(),
           '/home': (context) => DashboardPage(),
           '/verify': (context) => VerificationPage(email: ""),
-          '/goals': (context) => GoalsPage()
+          '/goals': (context) => GoalsPage(),
+          '/goals/add': (context) => AddGoalPage()
         },
       ),
     );
